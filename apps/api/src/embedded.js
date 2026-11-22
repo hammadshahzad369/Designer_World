@@ -22,6 +22,26 @@ function getApp() {
   return loaded;
 }
 
+function failureCategory(error) {
+  if (error instanceof ConfigError) return 'configuration_invalid';
+
+  const failures = [
+    error,
+    ...Array.from(error.reason?.servers?.values() || [], server => server.error).filter(Boolean),
+  ];
+  const codes = failures.flatMap(failure => [failure.code, failure.cause?.code]);
+  if (codes.includes(18) || codes.includes(8000)) return 'database_authentication_failed';
+  if (codes.includes(13)) return 'database_permission_denied';
+  if (codes.some(code => ['ENOTFOUND', 'ENODATA', 'EAI_AGAIN', 'ESERVFAIL', 'EREFUSED'].includes(code))) {
+    return 'database_dns_failed';
+  }
+  if (error.name === 'MongoParseError' || error.name === 'MongoInvalidArgumentError') {
+    return 'database_uri_invalid';
+  }
+  if (error.name === 'MongooseServerSelectionError') return 'database_unreachable';
+  return 'api_initialization_failed';
+}
+
 export async function embeddedApi(req, res) {
   let app;
   try {
@@ -30,11 +50,17 @@ export async function embeddedApi(req, res) {
     const detail = error instanceof ConfigError
       ? error.message
       : [error.name, error.code, error.cause?.code].filter(Boolean).join(' ');
-    console.error('API initialization failed:', detail);
+    const reason = failureCategory(error);
+    console.error('API initialization failed:', reason, detail);
     res.statusCode = 503;
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Cache-Control', 'no-store');
-    res.end(JSON.stringify({ status: 'unavailable', error: 'Database or API configuration unavailable' }));
+    const readinessRequest = req.path === '/api/ready';
+    res.end(JSON.stringify({
+      status: 'unavailable',
+      error: 'Database or API configuration unavailable',
+      ...(readinessRequest && { reason }),
+    }));
     return;
   }
   app(req, res);
