@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { examples, imagePath } from '../../../lib/examples';
+import ExampleBasket from '../../../components/example-basket';
 import '../../landing.css';
 
 export function generateStaticParams() {
@@ -37,7 +38,7 @@ export default async function ExampleStore({ params }) {
             <h2>Featured collection</h2>
             <div>
               {store.productImage && <img src={imagePath(store.productImage)} alt={store.product} width="520" height="346" />}
-              <h3>{store.product}</h3><p>{store.price}</p>
+              <ExampleBasket product={store.product} price={store.price} />
             </div>
           </section>
         </article>

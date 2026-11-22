@@ -13,6 +13,7 @@ export default function Home() {
           <div className="landing-nav-links">
             <a href="#inspiration">Store examples</a>
             <a href="#how-it-works">How it works</a>
+            <a href="#questions">FAQ</a>
           </div>
           <div className="landing-nav-actions">
             <Link href="/dashboard">Sign in</Link>
@@ -28,7 +29,7 @@ export default function Home() {
           <p className="hero-description">Build a shop that feels like your brand. Add products, choose delivery or pickup, and take cash-on-delivery orders from one dashboard.</p>
           <div className="landing-actions">
             <Link href="/register" className="landing-button">Create your store <span aria-hidden="true">→</span></Link>
-            <a href="#inspiration" className="landing-text-link">Explore examples <span aria-hidden="true">↓</span></a>
+            <Link href="/examples/root-and-fern" className="landing-text-link">Try a demo shop <span aria-hidden="true">→</span></Link>
           </div>
         </div>
 
@@ -79,6 +80,20 @@ export default function Home() {
           <li><h3>Open for orders</h3><p>Once approved, share your store link and manage orders from your dashboard.</p></li>
         </ol>
         <Link href="/register" className="landing-button">Create your store <span aria-hidden="true">→</span></Link>
+      </section>
+
+      <section className="landing-faq" id="questions" aria-labelledby="questions-title">
+        <div className="landing-width landing-faq-grid">
+          <div>
+            <h2 id="questions-title">Before you open shop.</h2>
+            <p>What to expect when you build your first storefront.</p>
+          </div>
+          <div>
+            <details><summary>When can I share my store?</summary><p>Set up your store and add your products in the dashboard. Once the platform admin approves your store, you can share its public link with customers.</p></details>
+            <details><summary>How do customers pay?</summary><p>Customers can place a cash order and choose delivery or pickup, depending on what you enable. They get a reference to track the order.</p></details>
+            <details><summary>What can I customize?</summary><p>Choose a layout, set brand colors, and add a cover image URL. Add product photos, descriptions, prices, and stock from your dashboard.</p></details>
+          </div>
+        </div>
       </section>
 
       <footer className="landing-footer">
