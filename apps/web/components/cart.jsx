@@ -32,7 +32,7 @@ function Tracking({ slug, initialOrder, money }) {
   }, [slug, reference, result, terminal]);
 
   return (
-    <section className="panel tracking">
+    <section className="panel tracking" id="order-tracking">
       <h2>{initialOrder ? 'Order placed' : 'Track an order'}</h2>
       {order && <div role="status" className="receipt">
         <strong>{order.status}</strong>
@@ -50,6 +50,7 @@ function Tracking({ slug, initialOrder, money }) {
 
 export default function Cart({ products, config, slug, checkoutId }) {
   const [items, setItems] = useState({});
+  const [search, setSearch] = useState('');
   const [type, setType] = useState(config?.deliveryEnabled ? 'delivery' : 'pickup');
   const [contact, setContact] = useState({ name: '', phone: '', address: '', city: '' });
   const [result, placeOrder] = useActionState(checkout.bind(null, slug), null);
@@ -64,38 +65,60 @@ export default function Cart({ products, config, slug, checkoutId }) {
   const deliveryFee = type === 'delivery' ? config?.deliveryFee || 0 : 0;
   const updateContact = event => setContact({ ...contact, [event.target.name]: event.target.value });
   const canCheckout = Boolean(config?.deliveryEnabled || config?.pickupEnabled);
+  const query = search.trim().toLocaleLowerCase();
+  const catalog = products.map(product => ({
+    ...product,
+    displayName: product.name[language] || product.name.en || Object.values(product.name)[0],
+    displayDescription: product.description?.[language] || product.description?.en,
+  }));
+  const matches = product => (product.displayName + ' ' + (product.displayDescription || '')).toLocaleLowerCase().includes(query);
 
   return (
     <>
       {!result?.order && <form action={placeOrder} className="shop-layout">
         <input type="hidden" name="checkoutId" value={checkoutId} />
         <section aria-labelledby="catalog-title">
-          <h2 id="catalog-title">Products</h2>
+          <div className="retail-catalog-header">
+            <div><h2 id="catalog-title">Shop the collection</h2><p>{catalog.filter(matches).length} products</p></div>
+            {products.length > 0 && <label className="retail-search">Find a product
+              <input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search products" />
+            </label>}
+          </div>
           {!products.length && <p>No products available yet.</p>}
+          {query && !catalog.some(matches) && <p>No products match your search.</p>}
           <ul className="catalog">
-            {products.map(product => {
-              const name = product.name[language] || product.name.en || Object.values(product.name)[0];
-              const description = product.description?.[language] || product.description?.en;
-              return <li key={product._id}>
-                {product.images[0] && <img className="product-image" src={product.images[0]} alt={name} loading="lazy" referrerPolicy="no-referrer" />}
+            {catalog.map(product => (
+              <li key={product._id} hidden={!matches(product)}>
+                {product.images?.[0]
+                  ? <img className="product-image" src={product.images[0]} alt={product.displayName} loading="lazy" referrerPolicy="no-referrer" />
+                  : <div className="product-image retail-product-placeholder" aria-hidden="true">{product.displayName.slice(0, 1)}</div>}
                 <div className="product-content">
-                  <h3>{name}</h3>
-                  {description && <p>{description}</p>}
+                  <h3>{product.displayName}</h3>
+                  {product.displayDescription && <p>{product.displayDescription}</p>}
                   <strong>{money(product.basePrice, product.currency)}</strong>
                   {product.stock > 0 && canCheckout ? (
-                    <label>Quantity <span className="sr-only">for {name}</span>
-                      <input name={'qty-' + product._id} type="number" min="0" max={Math.min(product.stock, 99)} step="1"
-                        value={items[product._id] ?? '0'} onChange={event => setItems({ ...items, [product._id]: event.target.value })} />
-                    </label>
+                    <div className="retail-product-actions">
+                      <button type="button" className="retail-add" disabled={quantity(product) >= Math.min(product.stock, 99)}
+                        aria-label={'Add ' + product.displayName + ' to bag'}
+                        onClick={() => setItems(current => ({
+                          ...current, [product._id]: Math.min(Number(current[product._id] || 0) + 1, product.stock, 99),
+                        }))}>Add to bag</button>
+                      <label>Quantity <span className="sr-only">for {product.displayName}</span>
+                        <input name={'qty-' + product._id} type="number" min="0" max={Math.min(product.stock, 99)} step="1"
+                          value={items[product._id] ?? '0'} onChange={event => setItems({ ...items, [product._id]: event.target.value })} />
+                      </label>
+                    </div>
                   ) : product.stock === 0 && <p>Out of stock</p>}
                 </div>
-              </li>;
-            })}
+              </li>
+            ))}
           </ul>
         </section>
         {canCheckout && products.some(product => product.stock > 0) && <section className="panel checkout form-stack">
-          <h2>Checkout</h2>
-          <p aria-live="polite">{totalCount} items · {money(subtotal + (totalCount ? deliveryFee : 0))}</p>
+          <h2>Shopping bag</h2>
+          <p className="retail-total" aria-live="polite">{totalCount} items · {money(subtotal + (totalCount ? deliveryFee : 0))}</p>
+          {totalCount > 0 && <ul className="retail-bag-lines">{catalog.filter(product => quantity(product) > 0)
+            .map(product => <li key={product._id}>{quantity(product)} × {product.displayName}</li>)}</ul>}
           <label>Fulfillment<select name="deliveryType" value={type} onChange={event => setType(event.target.value)}>
             {config.deliveryEnabled && <option value="delivery">Delivery ({money(config.deliveryFee || 0)})</option>}
             {config.pickupEnabled && <option value="pickup">Pickup</option>}

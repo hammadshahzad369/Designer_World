@@ -90,9 +90,16 @@ export default async function Dashboard({ searchParams }) {
       <header className="portal-heading">
         <p className="eyebrow">Business dashboard</p>
         <h1>{store.name}</h1>
+        {store.category && <p className="muted">{store.category}</p>}
         {store.isApproved ? <Link href={'/store/' + store.slug}>Open storefront →</Link>
           : <p className="muted">Your storefront will go live after platform approval.</p>}
       </header>
+      <section className="panel">
+        <h2>Store address</h2>
+        <p>Your hosted link <code>/store/{store.slug}</code></p>
+        {store.domainPreference === 'custom' && <p>You selected a custom domain. Your hosted link remains active after approval while custom-domain activation is pending.</p>}
+        <a href="https://www.domain.com/domains" target="_blank" rel="noopener noreferrer">Search for a domain on Domain.com →</a>
+      </section>
       <section className="panel">
         <h2>{config ? 'Store builder' : 'Set up your store'}</h2>
         <StoreSettings key={config?.updatedAt || 'setup'} store={store} config={config} />

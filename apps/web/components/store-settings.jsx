@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { storefrontThemes } from '@storecraft/shared';
 import { saveSettings } from '../lib/actions';
 import { ActionForm, Submit } from './forms';
 
 export default function StoreSettings({ store, config }) {
+  const recommended = store.category === 'Fashion & accessories' ? 'boutique'
+    : store.category === 'Food & drink' ? 'market' : 'classic';
   const [theme, setTheme] = useState({
     primary: config?.primaryColor || '#254438',
     secondary: config?.secondaryColor || '#f5f1e8',
-    template: config?.templateId || 'classic',
+    template: config?.templateId || recommended,
     description: config?.seoDescription || '',
   });
   const change = event => setTheme({ ...theme, [event.target.name]: event.target.value });
@@ -16,7 +19,7 @@ export default function StoreSettings({ store, config }) {
     <div className="settings-grid">
       <ActionForm action={saveSettings} className="form-stack">
         <div className="fields">
-          <label>Template<select name="template" value={theme.template} onChange={change}><option value="classic">Classic</option><option value="market">Market</option></select></label>
+          <label>Template<select name="template" value={theme.template} onChange={change}>{Object.entries(storefrontThemes).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
           <label>Language<select name="language" defaultValue={config?.defaultLanguage || 'en'}><option value="en">English</option><option value="ur">Urdu</option><option value="ar">Arabic</option></select></label>
           <label>Currency<select name={config ? undefined : 'currency'} defaultValue={config?.defaultCurrency || 'PKR'} disabled={Boolean(config)}>
             {['PKR', 'USD', 'GBP', 'EUR', 'AED', 'SAR'].map(code => <option key={code}>{code}</option>)}

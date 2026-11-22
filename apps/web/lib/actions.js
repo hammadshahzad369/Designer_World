@@ -37,9 +37,12 @@ export async function signIn(portal, _previous, form) {
 export async function signUp(_previous, form) {
   const email = field(form, 'email');
   const password = field(form, 'password');
+  const category = field(form, 'category');
   try {
     const response = await api('/auth/register', { method: 'POST', body: {
       businessName: field(form, 'name'), subDomain: field(form, 'slug'), email, password,
+      ...(category && { category }),
+      domainPreference: field(form, 'domainPreference') || 'hosted',
     } });
     if (!response.ok) return { error: response.error };
     const result = await login('dashboard', email, password);

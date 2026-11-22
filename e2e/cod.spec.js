@@ -11,10 +11,16 @@ test('merchant publishes a store after approval and fulfills a COD order', async
     await page.goto('/register');
     await page.getByLabel('Business name').fill('Kabab Ji ' + id);
     await page.getByLabel('Store address').fill(slug);
+    await page.getByLabel('Business category').selectOption('Food & drink');
+    await page.getByRole('radio', { name: /Buy a custom domain/ }).check();
+    await expect(page.getByRole('link', { name: /Find a domain on Domain.com/ })).toHaveAttribute('href', 'https://www.domain.com/domains');
     await page.getByLabel('Email').fill(slug + '@example.test');
     await page.getByLabel('Password').fill(password);
     await page.getByRole('button', { name: 'Create account' }).click();
     await expect(page.getByRole('heading', { name: 'Set up your store' })).toBeVisible();
+    await expect(page.getByText('Food & drink', { exact: true })).toBeVisible();
+    await expect(page.getByText(/You selected a custom domain/)).toBeVisible();
+    await page.getByLabel('Template').selectOption('boutique');
     await page.getByLabel('Store description').fill('Fresh grill and platters');
     await page.getByLabel('Delivery fee').fill('150');
     await page.getByRole('button', { name: 'Complete setup' }).click();
@@ -47,7 +53,12 @@ test('merchant publishes a store after approval and fulfills a COD order', async
       expect((await request.get('/super-admin', { headers: { Host: host } })).status()).toBe(404);
     }
     await shopper.goto('/store/' + slug);
+    await expect(shopper.locator('main.retail')).toHaveClass(/boutique/);
     await expect(shopper.getByRole('heading', { name: 'Family Platter' })).toBeVisible();
+    await shopper.getByRole('searchbox').fill('missing');
+    await expect(shopper.getByText('No products match your search.')).toBeVisible();
+    await shopper.getByRole('searchbox').fill('platter');
+    await shopper.getByRole('button', { name: 'Add Family Platter to bag' }).click();
     await shopper.getByLabel('Quantity for Family Platter').fill('2');
     await shopper.getByLabel('Full name').fill('Test Customer');
     await shopper.getByLabel('Phone').fill('03001234567');

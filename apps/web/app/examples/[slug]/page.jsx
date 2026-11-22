@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { examples, imagePath } from '../../../lib/examples';
+import { catalogs, examples, imagePath } from '../../../lib/examples';
 import ExampleBasket from '../../../components/example-basket';
 import '../../landing.css';
 
@@ -35,11 +35,8 @@ export default async function ExampleStore({ params }) {
             <img src={imagePath(store.image)} alt={store.alt} width="840" height="560" />
           </div>
           <section className="example-feature">
-            <h2>Featured collection</h2>
-            <div>
-              {store.productImage && <img src={imagePath(store.productImage)} alt={store.product} width="520" height="346" />}
-              <ExampleBasket product={store.product} price={store.price} />
-            </div>
+            <h2>Shop the collection</h2>
+            <ExampleBasket products={catalogs[slug]} />
           </section>
         </article>
       </div>

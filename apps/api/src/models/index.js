@@ -41,6 +41,7 @@ export const Business = model('Business', 'businesses', {
   phone: String,
   logo: String,
   category: String,
+  domainPreference: { type: String, enum: ['hosted', 'custom'], default: 'hosted' },
   subscriptionPlanId: ref('SubscriptionPlan'),
   subscriptionStatus: {
     type: String, enum: ['active', 'trial', 'suspended', 'cancelled'], default: 'trial',

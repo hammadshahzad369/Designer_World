@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import mongoose, { isObjectIdOrHexString } from 'mongoose';
 import { z } from 'zod';
-import { isStoreSlug } from '@storecraft/shared';
+import { businessCategories, isStoreSlug, storefrontThemes } from '@storecraft/shared';
 import { Business, Order, Product, StoreConfig } from '../models/index.js';
 
 const shortText = z.string().trim().min(1).max(120);
@@ -13,6 +13,8 @@ const price = z.number().min(0).max(1000000)
 
 const registration = z.strictObject({
   businessName: shortText,
+  category: z.enum(businessCategories).optional(),
+  domainPreference: z.enum(['hosted', 'custom']).default('hosted'),
   subDomain: z.string().refine(isStoreSlug),
   email: z.email().max(254).transform(value => value.toLowerCase()),
   password: z.string().min(12).refine(value => Buffer.byteLength(value) <= 72),
@@ -37,7 +39,7 @@ export async function merchantStore(req, res) {
 }
 
 const storeSettings = z.strictObject({
-  templateId: z.enum(['classic', 'market']),
+  templateId: z.enum(Object.keys(storefrontThemes)),
   primaryColor: z.string().regex(/^#[0-9a-f]{6}$/i),
   secondaryColor: z.string().regex(/^#[0-9a-f]{6}$/i),
   defaultLanguage: z.enum(languages),

@@ -17,3 +17,13 @@ export function storefrontHostname(hostname, rootDomain) {
   const slug = hostname.slice(0, -(rootDomain.length + 1));
   return isStoreSlug(slug) ? slug : null;
 }
+
+export const businessCategories = Object.freeze([
+  'Fashion & accessories', 'Food & drink', 'Home & living', 'Beauty & wellness', 'Electronics', 'Other',
+]);
+
+export const storefrontThemes = Object.freeze({
+  classic: 'Classic',
+  market: 'Market',
+  boutique: 'Boutique',
+});

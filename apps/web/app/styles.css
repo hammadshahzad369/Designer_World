@@ -83,3 +83,6 @@ details > .form-stack { margin: .8rem 0; }
   .record, .product-entry, .store-hero { flex-wrap: wrap; }
   .store-hero img { width: 100%; }
 }
+
+.theme-preview.boutique { text-align: center; }
+.theme-preview.boutique h3 { font-style: italic; }

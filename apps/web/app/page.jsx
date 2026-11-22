@@ -2,7 +2,12 @@ import Link from 'next/link';
 import { examples, imagePath } from '../lib/examples';
 import './landing.css';
 
-const templates = ['forma-studio', 'daily-grind', 'common-thread'];
+const plans = [
+  { name: 'Starter', price: 'Free', features: ['20 products', 'Cash on delivery', 'Hosted store link'], live: true },
+  { name: 'Growth', price: '$19', features: ['200 products', 'Custom domain', 'Stripe and cash on delivery'] },
+  { name: 'Pro', price: '$49', features: ['Unlimited products', 'More payment gateways', 'White-label storefront'] },
+  { name: 'Enterprise', price: '$149', features: ['Unlimited products', 'Dedicated support', '0% platform commission'] },
+];
 
 export default function Home() {
   return (
@@ -13,6 +18,7 @@ export default function Home() {
           <div className="landing-nav-links">
             <a href="#inspiration">Store examples</a>
             <a href="#how-it-works">How it works</a>
+            <a href="#pricing">Pricing</a>
             <a href="#questions">FAQ</a>
           </div>
           <div className="landing-nav-actions">
@@ -56,8 +62,7 @@ export default function Home() {
             <p>Explore sample storefronts for different businesses.</p>
           </div>
           <div className="inspiration-grid">
-            {templates.map(slug => {
-              const store = examples[slug];
+            {Object.entries(examples).map(([slug, store]) => {
               return (
                 <Link key={slug} className="inspiration-card" href={'/examples/' + slug}>
                   <img src={imagePath(store.image)} alt={store.alt} loading="lazy" width="840" height="560" />
@@ -80,6 +85,25 @@ export default function Home() {
           <li><h3>Open for orders</h3><p>Once approved, share your store link and manage orders from your dashboard.</p></li>
         </ol>
         <Link href="/register" className="landing-button">Create your store <span aria-hidden="true">→</span></Link>
+      </section>
+
+      <section className="landing-pricing" id="pricing" aria-labelledby="pricing-title">
+        <div className="landing-width">
+          <div className="landing-section-heading">
+            <div><p className="landing-kicker">Pricing</p><h2 id="pricing-title">Start with room to grow.</h2></div>
+            <p>Starter is available today. Paid plans are planned, with billing coming later.</p>
+          </div>
+          <div className="pricing-grid">
+            {plans.map(plan => (
+              <article className={'pricing-card' + (plan.live ? ' pricing-live' : '')} key={plan.name}>
+                <h3>{plan.name}</h3>
+                <p className="plan-price">{plan.price}{!plan.live && <span> / month</span>}</p>
+                <ul>{plan.features.map(feature => <li key={feature}>{feature}</li>)}</ul>
+                {plan.live ? <Link className="landing-button" href="/register">Start free →</Link> : <p className="plan-status">Coming soon</p>}
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="landing-faq" id="questions" aria-labelledby="questions-title">
