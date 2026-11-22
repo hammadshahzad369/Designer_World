@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import request from 'supertest';
-import { createApp } from '../src/app.js';
+import { createApp } from '../src/create-app.js';
 import { Business, Order, Product, StoreConfig, User } from '../src/models/index.js';
 
 const testUri = process.env.TEST_MONGODB_URI;
