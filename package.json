@@ -1,0 +1,21 @@
+{
+  "name": "storecraft",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w @storecraft/web",
+    "dev:api": "npm run dev -w @storecraft/api",
+    "build": "npm run build -w @storecraft/web",
+    "test": "npm run test -w @storecraft/api",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

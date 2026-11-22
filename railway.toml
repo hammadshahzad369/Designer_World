@@ -1,0 +1,4 @@
+[deploy]
+startCommand = "npm run start -w @storecraft/api"
+healthcheckPath = "/ready"
+healthcheckTimeout = 60
