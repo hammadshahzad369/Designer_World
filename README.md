@@ -61,7 +61,15 @@ npm run test:e2e
 
 Use a disposable replica set for API tests. They create and drop randomly named databases. Without `TEST_MONGODB_URI`, database tests are skipped. For the browser test, run both services against a disposable database, provision an admin, and set `STORECRAFT_ADMIN_EMAIL` and `STORECRAFT_ADMIN_PASSWORD` in the test process. The browser test creates a merchant and an order. Use `STORECRAFT_E2E_URL` to change the web origin and `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to use an installed Chromium. With `STORECRAFT_ROOT_DOMAIN` set in both the web and test processes, the test exercises hostname-based routing too.
 
-## Hosted deployment
+## Vercel demo deployment
+
+Deploy the Express API and the Next.js frontend as two Vercel projects linked to the same repository.
+
+1. Import the repository for the API project. Set the root to `apps/api`, select Express, and include source files outside the root directory so the shared workspace is available. Vercel uses the Express entry point in `src/index.js`.
+2. In the API project, set `MONGODB_URI` and `JWT_ACCESS_SECRET` as server-side environment variables. After deploying, open the API origin followed by `/api/ready`. HTTP 200 with `{"status":"ready"}` confirms database connectivity. Vercel Hobby functions may use rotating outbound IPs, so Atlas needs a network configuration that permits traffic from the API deployment.
+3. Import the same repository for the frontend project. Set the root to `apps/web`, select Next.js, and set `STORECRAFT_API_URL` to the API's HTTPS origin.
+
+## Separate API hosting
 
 1. Create an Atlas database user with access to the StoreCraft database. Configure Atlas network access for the API host and put the connection URI in the API host's secret settings as `MONGODB_URI`. Keep the database name in the URI. Supply a separately generated `JWT_ACCESS_SECRET`.
 2. Deploy the API on Railway from the repository root. `railway.toml` defines the workspace start command and `/ready` health check. Review the host's actual reverse-proxy configuration before setting `TRUST_PROXY_HOPS`. Run the admin bootstrap once with secure environment variables.

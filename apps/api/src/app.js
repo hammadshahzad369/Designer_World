@@ -4,13 +4,13 @@ import { rateLimit } from 'express-rate-limit';
 import mongoose from 'mongoose';
 import { apiRoutes } from './routes/index.js';
 
-export function createApp(config) {
+export function createApp(config, { healthPrefix = '' } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', config.TRUST_PROXY_HOPS || false);
   app.use(helmet());
-  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
-  app.get('/ready', async (_req, res) => {
+  app.get(healthPrefix + '/health', (_req, res) => res.json({ status: 'ok' }));
+  app.get(healthPrefix + '/ready', async (_req, res) => {
     try {
       if (mongoose.connection.readyState !== 1) throw new Error('MongoDB unavailable');
       await mongoose.connection.db.command({ ping: 1 }, { maxTimeMS: 1500 });
