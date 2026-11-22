@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 import { createApp } from './create-app.js';
-import { readConfig } from './config.js';
+import { ConfigError, readConfig } from './config.js';
 
 let loaded;
 
 function getApp() {
   if (!loaded) {
     loaded = (async () => {
-      const config = readConfig();
+      const config = readConfig(process.env, { embedded: true });
       await mongoose.connect(config.MONGODB_URI, {
         serverSelectionTimeoutMS: 5000,
         maxPoolSize: 10,
@@ -27,7 +27,10 @@ export async function embeddedApi(req, res) {
   try {
     app = await getApp();
   } catch (error) {
-    console.error('API initialization failed:', error.name, error.code || '');
+    const detail = error instanceof ConfigError
+      ? error.message
+      : [error.name, error.code, error.cause?.code].filter(Boolean).join(' ');
+    console.error('API initialization failed:', detail);
     res.statusCode = 503;
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Cache-Control', 'no-store');
